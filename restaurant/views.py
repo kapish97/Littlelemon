@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
+from rest_framework import status
+from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +13,7 @@ from .serializers import bookingSerializer, menuSerializer
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateAPIView,DestroyAPIView
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+
 class bookingview(APIView):
     def get(self,request):
         items = Booking.objects.all()
@@ -31,8 +34,13 @@ class MenuitemView(ListCreateAPIView):
 
 class SingleItemView(RetrieveUpdateAPIView,DestroyAPIView):
     queryset = Menu.objects.all()
-    seriailzer = menuSerializer()
+    serializer_class = menuSerializer
 
+    def get(self,request,pk):
+        item = get_object_or_404(Menu,pk=pk)
+        serializer = menuSerializer(item)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+   
 
 class UserSerializer(serializers.ModelSerializer):
 
